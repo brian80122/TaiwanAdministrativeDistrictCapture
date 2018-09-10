@@ -18,11 +18,18 @@ namespace TaiwanAdministrativeDistrictCapture
             {
                 throw new FileNotFoundException("找不到行政區設定檔");
             }
-            Dictionary<string, string[]> taiwanAdministrativeDistrictDictionary;
+            List<string> compareKeys = new List<string>();
             using (StreamReader r = new StreamReader(filePath))
             {
                 var json = r.ReadToEnd();
-                taiwanAdministrativeDistrictDictionary = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(json);
+                var taiwanAdministrativeDistrictDictionary = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(json);
+                foreach (var keyValPair in taiwanAdministrativeDistrictDictionary)
+                {
+                    foreach (var val in keyValPair.Value)
+                    {
+                        compareKeys.Add($"{keyValPair.Key}{val}");
+                    }
+                }
             }
             while (isContinue)
             {
@@ -32,26 +39,23 @@ namespace TaiwanAdministrativeDistrictCapture
                 if (string.IsNullOrEmpty(input))
                 {
                     input = "110臺北市信義區信義路五段7號";
+                    Console.WriteLine($"範例地址:{input}");
                 }
 
-                var key = taiwanAdministrativeDistrictDictionary.Keys.FirstOrDefault(c => input.Contains(c));
-                if (key == null)
-                {
-                    Console.WriteLine("未比對出符合行政區");
-                    continue;
-                }
+                input = input.Replace("台", "臺");
 
-                var comapareDistricts = taiwanAdministrativeDistrictDictionary[key];
-                var found = comapareDistricts.FirstOrDefault(c => input.Contains($"{key}{c}"));
+
+                var found = compareKeys.FirstOrDefault(c => input.Contains(c));
                 if (found != null)
                 {
-                    Console.WriteLine($"地址屬於:{key}{found}");
+                    Console.WriteLine($"地址屬於:{found}");
                 }
                 else
                 {
                     Console.WriteLine("未比對出符合行政區");
                     continue;
                 }
+                Console.WriteLine();
             }
 
 
