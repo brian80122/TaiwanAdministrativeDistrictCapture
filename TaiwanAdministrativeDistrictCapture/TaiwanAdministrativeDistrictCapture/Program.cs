@@ -18,18 +18,12 @@ namespace TaiwanAdministrativeDistrictCapture
             {
                 throw new FileNotFoundException("找不到行政區設定檔");
             }
-            List<string> compareKeys = new List<string>();
+            string[] compareKeys;
             using (StreamReader r = new StreamReader(filePath))
             {
                 var json = r.ReadToEnd();
                 var taiwanAdministrativeDistrictDictionary = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(json);
-                foreach (var keyValPair in taiwanAdministrativeDistrictDictionary)
-                {
-                    foreach (var val in keyValPair.Value)
-                    {
-                        compareKeys.Add($"{keyValPair.Key}{val}");
-                    }
-                }
+                compareKeys = taiwanAdministrativeDistrictDictionary.SelectMany(c => c.Value, (k, y) => $"{k.Key}{y}").ToArray();
             }
             while (isContinue)
             {
